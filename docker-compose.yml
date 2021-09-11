@@ -1,0 +1,51 @@
+version: "3.4"
+services:
+  root-ca:
+    container_name: root-ca
+    restart: "no"
+    image: yurkao/openssl:demo
+    hostname: root-ca
+    user: "0"
+    working_dir: /tmp
+    volumes:
+      - ./conf/openssl-rca.cnf:/usr/local/openssl/openssl-rca.cnf
+      - ./tmp:/tmp
+    environment:
+      - OPENSSL_CONF=/usr/local/openssl/openssl-rca.cnf
+  itermediate-ca:
+    container_name: intermediate-ca
+    restart: "no"
+    image: yurkao/openssl:demo
+    hostname: intermediate-ca
+    user: "0"
+    working_dir: /tmp
+    volumes:
+      - ./conf/openssl-ica.cnf:/usr/local/openssl/openssl-ica.cnf
+      - ./tmp:/tmp
+    environment:
+      - OPENSSL_CONF=/usr/local/openssl/openssl-ica.cnf
+  server:
+    container_name: server
+    restart: "no"
+    image: yurkao/openssl:demo
+    hostname: server.local
+    user: "0"
+    working_dir: /tmp
+    expose:
+      - "443"
+    ports:
+      - "1443:443"
+    volumes:
+      - ./conf/openssl-server.cnf:/usr/local/openssl/openssl-server.cnf
+      - ./tmp:/tmp
+    environment:
+      - OPENSSL_CONF=/usr/local/openssl/openssl-server.cnf
+  client:
+    container_name: client
+    restart: "no"
+    image: yurkao/openssl:demo
+    hostname: client
+    user: "0"
+    working_dir: /tmp
+    volumes:
+      - ./tmp:/tmp

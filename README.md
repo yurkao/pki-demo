@@ -30,6 +30,10 @@ openssl req -nodes -x509 -newkey rsa:4096 -keyout "${RCA_KEY}" -out "${RCA_CRT}"
 The RootCA's certificate will be located in `/usr/local/openssl/certs/rca.crt`.
 
 The RootCA's private key will be located in `/usr/local/openssl/private/rca.key`.
+In production, you should set secure permissions on private key 
+```shell
+chmod 600 "${RCA_KEY}"
+```
 ### Investigating results
 ```shell
 ls -l /usr/local/openssl/certs/rca.crt /usr/local/openssl/private/rca.key
@@ -80,6 +84,11 @@ openssl genrsa -out "${ICA_KEY}"
 ```
 the resulted ICA private ky will be located in `/usr/local/openssl/private/ica.key`.
 
+In production, you should set secure permissions on private key 
+```shell
+chmod 600  "${ICA_KEY}"
+```
+
 ### Create ICA certificate sign request
 Continue using `intermediate-ca` container CLI and run following to generate ICA certificate sign request:
 ```shell
@@ -101,7 +110,8 @@ Investigate resulted ICA CSR by running:
 openssl req -text -noout -in /tmp/ica.csr
 ```
 ### Copy ICA CSR to RCA
-Copy created ICA CSR file (`/tmp/ica.csr`) to `root-ca` container
+In production, you should copy created ICA CSR file (`/tmp/ica.csr`) to `root-ca` container.\
+Since we're running demo in containers with shared `/tmp`, no need to do so.
 
 ### Signing ICA's CSR with RCA
 On `root-ca` container run following:
@@ -118,8 +128,7 @@ They are the same:
 <some-hash-sum>  /usr/local/openssl/certs/00.pem
 <some-hash-sum>  ica.crt
 ```
-Investigate resulted ICA certificate
-###
+### Investigate resulted ICA certificate
 Dump ICA certificate info:
 ```shell
 openssl x509 -text -noout -in /tmp/ica.crt
@@ -136,7 +145,13 @@ Same for `Issuer` and `X509v3 Authority Key Identifier`.
 
 ### Copying produced ICA certificate to ICA host
 Copy produced ICA certificate `ica.crt` from `root-ca` container to `intermediate-ca` and put the certificate
-in `/usr/local/openssl/certs/ica.crt` on `intermediate-ca` container.
+in `/usr/local/openssl/certs/ica.crt` on `intermediate-ca` container. (No need to do so in demo since we're running with shared `/tmp`)
+
+### Store ICA certificate in correct location
+On `intermediate-ca` CLI, run:
+````shell
+cp /tmp/ica.crt /usr/local/openssl/certs/ica.crt
+````
 
 
 ## Setting up server
@@ -148,6 +163,11 @@ SRV_KEY="/root/server.key"
 openssl genrsa -out "${SRV_KEY}"
 ```
 This will generate server private key and store it in `/root/server.key`.
+
+In production, you should set secure permissions on private key 
+```shell
+chmod 600  "${SRV_KEY}"
+```
 
 ### Generate server private key 
 Open `server` container CLI and run following to generate server CSR

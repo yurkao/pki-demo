@@ -328,3 +328,10 @@ The output will be
 ```shell
 Verified OK
 ```
+
+# TODOs
+1. CRLs
+2. delta CRLs
+3. OCSP
+4. Extended key usage
+5. User certificates
